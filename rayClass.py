@@ -5,7 +5,7 @@ import numpy as np
 class intersection_sphere:
     def __init__(self):
         self.radius = 0.7
-        self.location = np.array([0.1, 0.3, -2.5])
+        self.location = np.array([0, 0, -2.5])
 
 def unitVector(d_camera, centre_of_object, raidus_object, camera_origin):
         
@@ -23,6 +23,8 @@ def unitVector(d_camera, centre_of_object, raidus_object, camera_origin):
     c = ((np.linalg.norm(camera_origin - centre_of_object))**2) - raidus_object**2
 
     theta = b**2 - 4*a*c
+
+    #theta here is t from the parametric equation. In othere words it is the "time" that the ray will hit the object. Meaning a shorter time indicates a closer object
 
     return theta
 

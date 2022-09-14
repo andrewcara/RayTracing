@@ -6,11 +6,15 @@ image_width = 300
 image_height = 200
 
 camera_position = np.array([0,0,0]) # X, Y, Z coordinates of the camera position 
+light_position = np.array([6,8,-6])
+
 
 top_left_screen = np.array([-1.5,1,-2]) # Orientation defined by looking at supposed screen
 top_right_screen = np.array([1.5,1,-2]) # Negative z direction is into the screen, right is positive X and up is positive Y
 bottom_left_screen = np.array([-1.5,-1,-2])
 bottom_right_screen = np.array([1.5,-1,-2])
+
+
 maximum_distance = math.sqrt(1.5**2 + 1**2 + 2**2)
 minimum_distance = 2
 
@@ -32,7 +36,7 @@ with open('camera_inclusion.ppm', 'a') as f:
 
             direction_vector = np.array([width_trakcer, height_tracker, -2])
 
-            x = sphere.unitVector(direction_vector,sphere.intersection_sphere().location, sphere.intersection_sphere().radius, camera_position)
+            x = sphere.unitVector(direction_vector, sphere.intersection_sphere().location, sphere.intersection_sphere().radius, camera_position)
             
             pixel_distance = float(np.sqrt
             (np.sum
@@ -44,14 +48,14 @@ with open('camera_inclusion.ppm', 'a') as f:
             pixel_distance = (pixel_distance - minimum_distance) / (maximum_distance-minimum_distance)
             
             if x > 0: #if theta is greater that zero the ray intersects with the object, thus we will give a colour of white or (255,255,255) in rgb to those locations
-                ir = int(255)
-                ig = int(255)
-                ib = int(255)
+                ir = int(100*x)
+                ig = int(100*x)
+                ib = int(100*x)
             
             else:
-                ir = int(255*pixel_distance)
-                ig = int(255*pixel_distance)
-                ib = int(255*pixel_distance)
+                ir = int(0)
+                ig = int(0)
+                ib = int(0)
 
             print(ir, ' ' , ig, ' ' , ib, file=f) 
 
