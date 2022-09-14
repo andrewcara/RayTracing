@@ -1,5 +1,32 @@
-class rayClass:
-    def __init__(self, origin, vector):
-        self.origin = origin
-        self.vecotr = vector #The function for each ray can be defined as A + P(t) where A is the origin and vector can move negatively and positiveley in the 3D space from that origin
+from msilib.schema import Class
+import numpy as np
+
+
+class intersection_sphere:
+    def __init__(self):
+        self.radius = 0.7
+        self.location = np.array([0.1, 0.3, -2.5])
+
+def unitVector(d_camera, centre_of_object, raidus_object, camera_origin):
+        
+        #a, b and c defined for the quadratic equation, where we are solving for t in the parametirc equation
+        #Find where the ray from the camera intersects the object
+        #where d is the unit vector from the camera along some ray
+        #d_centre_of_object in this case will be centre of the sphere
+    
+    d = (d_camera - camera_origin) / np.linalg.norm(d_camera - camera_origin)
+
+    a = np.dot(d, d) #should always be one, but a good check
+
+    b = 2*np.dot(d, (camera_origin - centre_of_object))
+
+    c = ((np.linalg.norm(camera_origin - centre_of_object))**2) - raidus_object**2
+
+    theta = b**2 - 4*a*c
+
+    return theta
+
+
+
+
 

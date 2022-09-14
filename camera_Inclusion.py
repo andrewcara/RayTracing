@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import rayClass as sphere
 
 image_width = 300
 image_height = 200
@@ -12,6 +13,7 @@ bottom_left_screen = np.array([-1.5,-1,-2])
 bottom_right_screen = np.array([1.5,-1,-2])
 maximum_distance = math.sqrt(1.5**2 + 1**2 + 2**2)
 minimum_distance = 2
+
 
 
 with open('camera_inclusion.ppm', 'a') as f:
@@ -27,6 +29,10 @@ with open('camera_inclusion.ppm', 'a') as f:
         for i in range(0,image_width):
             width_trakcer = i*3/image_width + top_left_screen[0] # coordinate at the furthest left of the screen
             
+
+            direction_vector = np.array([width_trakcer, height_tracker, -2])
+
+            x = sphere.unitVector(direction_vector,sphere.intersection_sphere().location, sphere.intersection_sphere().radius, camera_position)
             
             pixel_distance = float(np.sqrt
             (np.sum
@@ -34,10 +40,18 @@ with open('camera_inclusion.ppm', 'a') as f:
             
             position_from_camera = np.append(position_from_camera, pixel_distance )  # finding the 3D distance from the camera to each pixel on the screen
             
+
             pixel_distance = (pixel_distance - minimum_distance) / (maximum_distance-minimum_distance)
-            ir = int(255*pixel_distance)
-            ig = int(255*pixel_distance)
-            ib = int(255*pixel_distance)
+            
+            if x > 0: #if theta is greater that zero the ray intersects with the object, thus we will give a colour of white or (255,255,255) in rgb to those locations
+                ir = int(255)
+                ig = int(255)
+                ib = int(255)
+            
+            else:
+                ir = int(255*pixel_distance)
+                ig = int(255*pixel_distance)
+                ib = int(255*pixel_distance)
 
             print(ir, ' ' , ig, ' ' , ib, file=f) 
 
@@ -45,4 +59,5 @@ with open('camera_inclusion.ppm', 'a') as f:
     #position_from_camera = position_from_camera - min(position_from_camera) / max(position_from_camera) - min(position_from_camera)
 
     #print(position_from_camera)
+
 
