@@ -5,9 +5,13 @@ import weakref
 
 class intersection_sphere:
     instances = []
-    def __init__(self, radius, location):
+    def __init__(self, radius, location, ambient, diffuse, specular, shiny):
         self.radius = radius
         self.location = location
+        self.ambient = ambient
+        self.diffuse= diffuse
+        self.specular = specular
+        self.shiny = shiny
         self.__class__.instances.append(weakref.proxy(self))
 
 def unitVector(point_on_screen, centre_of_object, raidus_object, camera_origin):
@@ -38,6 +42,7 @@ def unitVector(point_on_screen, centre_of_object, raidus_object, camera_origin):
 def closest_point(sphere_object, camera_origin, distance_from_camera):
     minimum = 0
     center = 0
+    obj = None
 
     # This function determines which point is closest to the camera 
     for i, j  in enumerate(sphere_object.instances):
@@ -45,30 +50,33 @@ def closest_point(sphere_object, camera_origin, distance_from_camera):
         if unitVector(distance_from_camera, j.location, j.radius, camera_origin) != None and minimum == 0:
             minimum = unitVector(distance_from_camera, j.location, j.radius, camera_origin)
             center = j.location
+            obj = j
         
         if unitVector(distance_from_camera, j.location, j.radius, camera_origin) != None and minimum != 0:
             if unitVector(distance_from_camera, j.location, j.radius, camera_origin) < minimum:
                 center = j.location
+                obj = j
             minimum = min(unitVector(distance_from_camera, j.location, j.radius, camera_origin),minimum)
 
     
     if minimum ==0:
-        return minimum, center
+        return minimum, obj
     
-    return minimum, center
+    return minimum, obj
 
 def normalize_vector(v):
     v = v/np.linalg.norm(v)
     return v
 
 
-def light_intersection(sphere_object, radius_of_closest_object, light_origin, intersection):
+def light_intersection(sphere_object, center_of_object, light_origin, intersection):
     
-    normal_to_surface = normalize_vector(intersection - radius_of_closest_object)
-    shifted_point = intersection + 1e-5 * normal_to_surface
-    x, _ = closest_point(sphere_object,  light_origin, shifted_point)
+    normal_to_surface = normalize_vector(intersection - center_of_object)
+    shifted_point = intersection + (1e-5 * normal_to_surface)
+
+    x, _ = closest_point(sphere_object, light_origin['position'], shifted_point)
     
-    if x < np.linalg.norm(light_origin - intersection):
+    if x < np.linalg.norm(intersection-light_origin['position']):
         return True
     else:
         return False

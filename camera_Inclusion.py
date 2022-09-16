@@ -7,7 +7,8 @@ image_width = 300
 image_height = 200
 
 camera_position = np.array([0,0,2.5]) # X, Y, Z coordinates of the camera position 
-light_position = np.array([5,5,5])
+light_position = { 'position': np.array([5, 5, 5]), 'ambient': np.array([1, 1, 1]), 'diffuse': np.array([1, 1, 1]), 'specular': np.array([1, 1, 1])}
+
 
 
 top_left_screen = np.array([-1.5,1,-2]) # Orientation defined by looking at supposed screen
@@ -16,9 +17,9 @@ bottom_left_screen = np.array([-1.5,-1,-2])
 bottom_right_screen = np.array([1.5,-1,-2])
 
 
-sphere1 = sphere.intersection_sphere(0.7, np.array([0,0,-2]))
-sphere2 = sphere.intersection_sphere(1.0, np.array([1, 0, -2.1]))
-sphere3 = sphere.intersection_sphere(0.5, np.array([-1, -0.25, -2]))
+sphere1 = sphere.intersection_sphere(0.7, np.array([-0.2, 0, -2]), np.array([0.1, 0, 0]), np.array([0.7, 0, 0]), np.array([1, 1, 1]), 100)
+sphere2 = sphere.intersection_sphere(0.2, np.array([0.1, -0.3, -1]), np.array([0.1, 0, 0]), np.array([0.7, 0, 0.7]), np.array([1, 1, 1]), 100)
+# sphere3 = sphere.intersection_sphere(0.5, np.array([-1, -0.25, -2]))
 
 
 
@@ -50,8 +51,11 @@ with open('camera_inclusion.ppm', 'a') as f:
                 
                 intersection_point = camera_position + (sphere.normalize_vector(direction_vector-camera_position) *x) # Finding the point where the ray from the camera inter
 
-                is_shaded =sphere.light_intersection(sphere.intersection_sphere, c, light_position, intersection_point)
+                is_shaded =sphere.light_intersection(sphere.intersection_sphere, c.location, light_position, intersection_point)
                 
+                
+                normal_to_surface = sphere.normalize_vector(intersection_point - c.location)
+                shifted_point = intersection_point + (1e-5 * normal_to_surface)
                 if (is_shaded):
                   ir = int(0)
                   ig = int(0)
@@ -59,13 +63,27 @@ with open('camera_inclusion.ppm', 'a') as f:
                     
                 if(not is_shaded):
                     
-                    ir = int(x*25)
-                    ig = int(x*25)
-                    ib = int(x*25)
-                    
+                    illumination = np.zeros((3))
+
+                    # ambiant
+                    illumination += c.ambient * light_position['ambient']
+
+                    # diffuse
+                    illumination += c.diffuse * light_position['diffuse'] * np.dot(sphere.normalize_vector(light_position['position'] - shifted_point), normal_to_surface)
+
+                    # specular
+                    intersection_to_camera = sphere.normalize_vector(camera_position - intersection_point)
+
+                    H = sphere.normalize_vector(sphere.normalize_vector(light_position['position'] - shifted_point) + intersection_to_camera)
+                    illumination += c.specular * light_position['specular'] * np.dot(normal_to_surface, H) ** (c.shiny / 4)
+                    illumination = np.clip(illumination, 0, 1)
+                
+                    ir = illumination[0] *255.999
+                    ig = illumination[1] *255.999
+                    ib = illumination[2] *255.99
                     
             else:
-                ir = int(255)
+                ir = int(0)
                 ig = int(0)
                 ib = int(0)
 
